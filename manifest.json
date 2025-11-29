@@ -13,9 +13,8 @@
   "permissions": [],
   "content_scripts": [
     {
-      "matches": ["*://codeforces.com/*"],
-      "js": ["content.js"],
-      "run_at": "document_end"
+      "matches": ["https://codeforces.com/*"],
+      "js": ["jquery.js", "inject.js"]
     }
   ],
   "action": {
@@ -25,5 +24,11 @@
       "128": "icons/icon128.png"
     },
     "default_title": "Codeforces True Rating"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["page.js"],
+      "matches": ["https://codeforces.com/*"]
+    }
+  ]
 }
