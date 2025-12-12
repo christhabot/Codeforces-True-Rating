@@ -255,6 +255,13 @@
                 "newbie": "#988F81"
             };
         let RatingTrue = 1;
+        if (li) {
+            const boldSpan = li.querySelector('span[style*="font-weight:bold"]');
+            if (boldSpan) {
+                const ratingNum = parseInt(boldSpan.textContent.replace(/\D/g, ''), 10);
+                if (!isNaN(ratingNum)) RatingTrue = ratingNum;
+            }
+        }
         function replaceRatings(liElement, rank1, Rating, rank2, maxRating) {
             if (!liElement) return;
             const boldSpans = liElement.querySelectorAll('[style="font-weight:bold;"]');
@@ -347,25 +354,37 @@
     } 
 
     function waitForGraphAndRun() {
-      const original = $("#usersRatingGraphPlaceholder");
-      const plot = original && original.data ? original.data("plot") : null;
-      if (original && original.length && plot) {
-        cloneCurrentCFGraph();
-        return;
-      }
+        const RUN_DEBOUNCE_MS = 300;
+        let lastRun = 0;
 
-      const check = setInterval(() => {
-        const o = $("#usersRatingGraphPlaceholder");
-        const p = o && o.data ? o.data("plot") : null;
-        if (o && o.length && p) {
-          clearInterval(check);
-          cloneCurrentCFGraph();
+        function tryRun() {
+            const now = Date.now();
+            if (now - lastRun < RUN_DEBOUNCE_MS) return;
+            lastRun = now;
+
+            const original = $("#usersRatingGraphPlaceholder");
+            const plot = original && original.data ? original.data("plot") : null;
+
+            if (original && original.length && plot) 
+            {
+                cloneCurrentCFGraph();
+                return true;
+            }
+            return false;
         }
-      }, 200);
+
+        if (!tryRun()) 
+        {
+            const check = setInterval(() => {
+                if (tryRun()) {
+                    clearInterval(check);
+                }
+            }, 200);
+        }
     }
 
     waitForGraphAndRun();
-
+    /*
     const docRoot = document.documentElement || document.body || document;
     const mutationObserver = new MutationObserver((mutations) => {
 
@@ -379,7 +398,7 @@
     mutationObserver.observe(docRoot, {
       childList: true,
       subtree: true
-    });
+    }); */
 
     window.__cloneCF = {
       run: cloneCurrentCFGraph,
@@ -387,7 +406,7 @@
     };
 
     log("page.js loaded and observer started.");
-  }); 
+  });
 
 })();
 
